@@ -9,6 +9,15 @@ class RunConfig(BaseModel):
     port: int = 8000
 
 
+class ApiV1Prefix(BaseModel):
+    prefix: str = "/v1"
+
+
+class ApiPrefix(BaseModel):
+    prefix: str = "/api"
+    v1: ApiV1Prefix = ApiV1Prefix()
+
+
 class DatabaseConfig(BaseModel):
     host: Optional[str] = None
     port: Optional[int] = None
@@ -52,6 +61,7 @@ class DatabaseConfig(BaseModel):
 
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
+    api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig = DatabaseConfig()
 
     model_config = SettingsConfigDict(
