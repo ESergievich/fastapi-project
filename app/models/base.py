@@ -1,4 +1,6 @@
-from sqlalchemy import MetaData
+from datetime import datetime
+
+from sqlalchemy import MetaData, text, Integer, DateTime
 from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column, Mapped
 
 from core import settings
@@ -7,7 +9,11 @@ from utils import camel_case_to_snake_case
 
 class Base(DeclarativeBase):
     __abstract__ = True
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("TIMEZONE('utc', now())"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("TIMEZONE('utc', now())"),
+                                                 onupdate=text("TIMEZONE('utc', now())")
+                                                 )
 
     metadata = MetaData(
         naming_convention=settings.db.naming_convention,
