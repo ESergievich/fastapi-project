@@ -30,7 +30,7 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 50
     max_overflow: int = 10
 
-    naming_convention: dict[str, str] = field(default=lambda: {
+    naming_convention: dict[str, str] = field(default_factory=lambda: {
         "ix": "ix_%(column_0_label)s",
         "uq": "uq_%(table_name)s_%(column_0_N_name)s",
         "ck": "ck_%(table_name)s_%(constraint_name)s",
