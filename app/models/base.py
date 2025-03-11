@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import MetaData, text, Integer, DateTime
+from fastapi_users_db_sqlalchemy.generics import TIMESTAMPAware, now_utc
+from sqlalchemy import MetaData, Integer
 from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column, Mapped
 
 from core import settings
@@ -10,10 +11,12 @@ from utils import camel_case_to_snake_case
 class Base(DeclarativeBase):
     __abstract__ = True
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("TIMEZONE('utc', now())"))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("TIMEZONE('utc', now())"),
-                                                 onupdate=text("TIMEZONE('utc', now())")
-                                                 )
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMPAware(timezone=True), index=True, nullable=False, default=now_utc
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMPAware(timezone=True), index=True, nullable=False, default=now_utc
+    )
 
     metadata = MetaData(
         naming_convention=settings.db.naming_convention,
