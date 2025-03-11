@@ -16,10 +16,13 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.38"}
 asyncpg = "^0.30.0"
 alembic = "^1.14.1"
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
+faker = "^37.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+httpx = "^0.28.1"
+pytest-asyncio = "^0.25.3"
 
 [build-system]
 requires = ["poetry-core"]
