@@ -71,15 +71,15 @@ class DatabaseConfig(BaseModel):
 
 class AccessToken(BaseModel):
     lifetime_seconds: int = 3600
-    reset_password_token_secret: str
-    verification_token_secret: str
+    reset_password_token_secret: Optional[str] = None
+    verification_token_secret: Optional[str] = None
 
 
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig = DatabaseConfig()
-    access_token: AccessToken
+    access_token: AccessToken = AccessToken()
 
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
