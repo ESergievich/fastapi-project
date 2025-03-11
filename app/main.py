@@ -4,8 +4,8 @@ from typing import AsyncGenerator
 import uvicorn
 from fastapi import FastAPI
 
-from app.core import db_helper, settings
-from app.api import router as api_router
+from core import db_helper, settings
+from api import router as api_router
 
 
 @asynccontextmanager
