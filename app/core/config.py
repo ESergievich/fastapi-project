@@ -1,5 +1,7 @@
 from dataclasses import field
-from typing import Any, Optional
+from typing import Optional
+
+from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel, PostgresDsn, field_validator
 
@@ -48,22 +50,22 @@ class DatabaseConfig(BaseModel):
 
     @field_validator('url', mode='before')
     @classmethod
-    def validate_url(cls, value: Optional[str], values: dict[str, Any]) -> Optional[PostgresDsn]:
+    def validate_url(cls, value: Optional[PostgresDsn], values: ValidationInfo) -> Optional[PostgresDsn]:
         if value:
             return value
 
         required_fields = ["host", "port", "user", "password", "name"]
-        if not all(values.get(field) for field in required_fields):
+        if not all(values.data.get(required_field) for required_field in required_fields):
             raise ValueError(
                 "If 'url' is not set, you need to specify 'host', 'port', 'user', 'password' and 'name'.")
 
         return PostgresDsn.build(
             scheme="postgresql",
-            username=values['user'],
-            password=values['password'],
-            host=values['host'],
-            port=values['port'],
-            path=f"/{values['name']}",
+            username=values.data['user'],
+            password=values.data['password'],
+            host=values.data['host'],
+            port=values.data['port'],
+            path=f"/{values.data['name']}",
         )
 
 
