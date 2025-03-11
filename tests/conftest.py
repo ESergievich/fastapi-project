@@ -3,8 +3,8 @@ import asyncio
 import pytest
 import pytest_asyncio
 
-from api_clients import AsyncHTTPClient, AuthClient
-from data import FakeUser
+from tests.api_clients import AsyncHTTPClient, AuthClient
+from tests.data import FakeUser
 
 BASE_URL = "http://localhost:8000/api/v1"
 

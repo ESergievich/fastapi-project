@@ -1,6 +1,6 @@
 import logging
 
-from api_clients import AsyncHTTPClient
+from tests.api_clients import AsyncHTTPClient
 
 logger = logging.getLogger("api")
 
