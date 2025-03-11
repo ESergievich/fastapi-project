@@ -6,6 +6,7 @@ from models import Base
 
 
 class AccessToken(Base, SQLAlchemyBaseAccessTokenTable[int]):
+    id = None
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="cascade"),
