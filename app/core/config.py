@@ -15,6 +15,7 @@ class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     auth: str = "/auth"
     users: str = "/users"
+    products: str = "/products"
 
 
 class ApiPrefix(BaseModel):
@@ -40,31 +41,38 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 50
     max_overflow: int = 10
 
-    naming_convention: dict[str, str] = field(default_factory=lambda: {
-        "ix": "ix_%(column_0_label)s",
-        "uq": "uq_%(table_name)s_%(column_0_N_name)s",
-        "ck": "ck_%(table_name)s_%(constraint_name)s",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s",
-    })
+    naming_convention: dict[str, str] = field(
+        default_factory=lambda: {
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_N_name)s",
+            "ck": "ck_%(table_name)s_%(constraint_name)s",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        }
+    )
 
-    @field_validator('url', mode='before')
+    @field_validator("url", mode="before")
     @classmethod
-    def validate_url(cls, value: Optional[PostgresDsn], values: ValidationInfo) -> Optional[PostgresDsn]:
+    def validate_url(
+        cls, value: Optional[PostgresDsn], values: ValidationInfo
+    ) -> Optional[PostgresDsn]:
         if value:
             return value
 
         required_fields = ["host", "port", "user", "password", "name"]
-        if not all(values.data.get(required_field) for required_field in required_fields):
+        if not all(
+            values.data.get(required_field) for required_field in required_fields
+        ):
             raise ValueError(
-                "If 'url' is not set, you need to specify 'host', 'port', 'user', 'password' and 'name'.")
+                "If 'url' is not set, you need to specify 'host', 'port', 'user', 'password' and 'name'."
+            )
 
         return PostgresDsn.build(
             scheme="postgresql",
-            username=values.data['user'],
-            password=values.data['password'],
-            host=values.data['host'],
-            port=values.data['port'],
+            username=values.data["user"],
+            password=values.data["password"],
+            host=values.data["host"],
+            port=values.data["port"],
             path=f"/{values.data['name']}",
         )
 
