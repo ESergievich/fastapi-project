@@ -17,6 +17,7 @@ asyncpg = "^0.30.0"
 alembic = "^1.14.1"
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
 faker = "^37.0.0"
+python-slugify = "^8.0.4"
 
 
 [tool.poetry.group.dev.dependencies]
