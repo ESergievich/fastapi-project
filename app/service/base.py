@@ -1,6 +1,7 @@
 from typing import Type, Generic
 
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import ModelType, UpdateSchemaType, CreateSchemaType
@@ -14,10 +15,15 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def create(
         self, object_in: CreateSchemaType, session: AsyncSession
     ) -> ModelType:
-        return await self.crud.create(object_in, session)
+        try:
+            object_db = await self.crud.create(object_in, session)
+        except IntegrityError as e:
+            error_detail = e.args[0].split("DETAIL:  ")[1]
+            raise HTTPException(status_code=409, detail=error_detail)
+        return object_db
 
     async def get_by_id(self, object_id: int, session: AsyncSession) -> ModelType:
-        object_db = await self.crud.get(object_id, session)
+        object_db = await self.crud.get_by_id(object_id, session)
         if not object_db:
             raise HTTPException(
                 status_code=404,
@@ -40,12 +46,22 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def update(
         self, object_id: int, object_in: UpdateSchemaType, session: AsyncSession
     ) -> ModelType:
-        object_db = await self.get_by_id(object_id, session)
-        return await self.crud.update(object_db, object_in, session)
+        try:
+            object_updated = await self.crud.update(object_id, object_in, session)
+            if not object_updated:
+                raise HTTPException(status_code=404, detail="Object not found")
+        except IntegrityError as e:
+            error_detail = e.args[0].split("DETAIL:  ")[1]
+            raise HTTPException(status_code=409, detail=error_detail)
+        return object_updated
 
     async def delete(self, object_id: int, session: AsyncSession) -> None:
-        object_db = await self.get_by_id(object_id, session)
-        await self.crud.delete(object_db, session)
+        try:
+            if not (object_id := await self.crud.delete(object_id, session)):
+                raise HTTPException(status_code=404, detail="Object not found")
+        except IntegrityError as e:
+            error_detail = e.args[0].split("DETAIL:  ")[1]
+            raise HTTPException(status_code=409, detail=error_detail)
 
     async def find_by_attr(
         self, attr_name: str, value: str, session: AsyncSession
