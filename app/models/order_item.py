@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, Integer, CheckConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models import Base
+
+if TYPE_CHECKING:
+    from models import Order, Product
 
 
 class OrderItem(Base):
@@ -24,3 +29,6 @@ class OrderItem(Base):
         nullable=False,
         default=1,
     )
+
+    order: Mapped["Order"] = relationship(back_populates="order_items")
+    product: Mapped["Product"] = relationship(back_populates="order_items")
