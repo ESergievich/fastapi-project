@@ -28,7 +28,7 @@ def create_filter_params(filter_schema: Type[BaseModel]):
                 )
             except ValidationError as e:
                 raise HTTPException(
-                    status_code=400, detail=f"Invalid filter parameters: {e.errors()}"
+                    status_code=400, detail=f"Invalid filter parameters. Allowed values: {tuple(filter_schema.__annotations__)}"
                 )
             return validated_data.model_dump(exclude_defaults=True)
 

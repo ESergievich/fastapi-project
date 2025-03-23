@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, condecimal
+from pydantic import BaseModel, condecimal, Field
 
 
 class ProductCreate(BaseModel):
@@ -25,9 +25,9 @@ class ProductResponse(ProductCreate):
 
 
 class ProductFilterIn(BaseModel):
-    id: Optional[list[int]] = []
-    name: Optional[list[str]] = []
-    slug: Optional[list[str]] = []
+    id: list[int] = Field(default_factory=list)
+    name: list[str] = Field(default_factory=list)
+    slug: list[str] = Field(default_factory=list)
 
     class Config:
         extra = "forbid"
