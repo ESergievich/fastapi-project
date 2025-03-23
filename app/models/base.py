@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
         TIMESTAMPAware(timezone=True), index=True, nullable=False, default=now_utc
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMPAware(timezone=True), index=True, nullable=False, default=now_utc
+        TIMESTAMPAware(timezone=True), index=True, nullable=False, default=now_utc, onupdate=now_utc
     )
 
     metadata = MetaData(
