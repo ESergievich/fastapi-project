@@ -1,6 +1,6 @@
 from typing import Generic, Type, Optional, Sequence
 
-from sqlalchemy import select, or_, desc
+from sqlalchemy import select, or_, desc, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
@@ -54,19 +54,27 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await session.execute(query)
         return result.scalars().all()
 
-    @staticmethod
     async def update(
-        object_db: ModelType, object_in: UpdateSchemaType, session: AsyncSession
-    ) -> ModelType:
+        self, object_id: int, object_in: UpdateSchemaType, session: AsyncSession
+    ) -> ModelType | None:
         update_data = object_in.model_dump(exclude_unset=True, exclude_none=True)
-        for field, value in update_data.items():
-            setattr(object_db, field, value)
-        session.add(object_db)
-        await session.commit()
-        await session.refresh(object_db)
-        return object_db
 
-    @staticmethod
-    async def delete(object_db: ModelType, session: AsyncSession) -> None:
-        await session.delete(object_db)
+        stmt = (
+            update(self.model)
+            .where(self.model.id == object_id)
+            .values(**update_data)
+            .returning(self.model)
+        )
+
+        result = await session.execute(stmt)
+        await session.commit()
+
+        return result.scalars().first()
+
+    async def delete(self, object_id: int, session: AsyncSession) -> None:
+        await session.execute(
+            delete(self.model)
+            .where(self.model.id == object_id)
+            .returning(self.model.id)
+        )
         await session.commit()
