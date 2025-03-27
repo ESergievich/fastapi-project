@@ -84,11 +84,18 @@ class AccessToken(BaseModel):
     verification_token_secret: Optional[str] = None
 
 
+class RedisConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 6379
+    decode_responses: bool = True
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig = DatabaseConfig()
     access_token: AccessToken = AccessToken()
+    redis: RedisConfig = RedisConfig()
 
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
