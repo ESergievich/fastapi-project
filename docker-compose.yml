@@ -53,3 +53,15 @@ services:
       - REDIS_HOSTS=local:redis:6379
     ports:
       - "8081:8081"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq
+    container_name: rabbitmq
+    env_file: ".env"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${APP_CONFIG__RABBITMQ__USER}
+      RABBITMQ_DEFAULT_PASS: ${APP_CONFIG__RABBITMQ__PASSWORD}
