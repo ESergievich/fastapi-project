@@ -91,12 +91,18 @@ class RedisConfig(BaseModel):
     decode_responses: bool = True
 
 
+class EmailConfig(BaseModel):
+    address: str | None = None
+    password: str | None = None
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig = DatabaseConfig()
     access_token: AccessToken = AccessToken()
     redis: RedisConfig = RedisConfig()
+    email: EmailConfig = EmailConfig()
 
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
