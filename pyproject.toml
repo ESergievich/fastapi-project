@@ -19,6 +19,7 @@ fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
 faker = "^37.0.0"
 python-slugify = "^8.0.4"
 redis = "^5.2.1"
+aio-pika = "^9.5.5"
 
 
 [tool.poetry.group.dev.dependencies]
