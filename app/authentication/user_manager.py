@@ -5,6 +5,7 @@ from fastapi_users import BaseUserManager, IntegerIDMixin
 
 from core import settings
 from models import User
+from rabbit import RabbitEmailProcessor
 
 if TYPE_CHECKING:
     from fastapi import Request
@@ -22,6 +23,20 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         request: Optional["Request"] = None,
     ):
         log.warning("User %r has registered.", user.id)
+        verification_link = (
+            f"{settings.api.prefix_with_version}/auth/request-verify-token"
+        )
+        message = {
+            "email": user.email,
+            "subject": "Welcome to Our Service!",
+            "body": f"Thank you for registering! Please verify your email by clicking the link below.\n\n{verification_link}",
+        }
+
+        async with RabbitEmailProcessor() as rabbit_processor:
+            await rabbit_processor.publish_message(
+                routing_key=settings.rmq_email_processor.routing_key_register,
+                message=message,
+            )
 
     async def on_after_request_verify(
         self,
@@ -34,6 +49,20 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             user.id,
             token,
         )
+        verification_link = (
+            f"{settings.api.prefix_with_version}/auth/verify?token={token}"
+        )
+        message = {
+            "email": user.email,
+            "subject": "Email verification",
+            "body": f"Follow the link to confirm: {verification_link}",
+        }
+
+        async with RabbitEmailProcessor() as rabbit_processor:
+            await rabbit_processor.publish_message(
+                routing_key=settings.rmq_email_processor.routing_key_verification,
+                message=message,
+            )
 
     async def on_after_forgot_password(
         self,
@@ -46,3 +75,17 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             user.id,
             token,
         )
+        reset_password_link = (
+            f"{settings.api.prefix_with_version}/auth/reset-password?token={token}"
+        )
+        message = {
+            "email": user.email,
+            "subject": "Password reset",
+            "body": f"Follow the link for password reset: {reset_password_link}",
+        }
+
+        async with RabbitEmailProcessor() as rabbit_processor:
+            await rabbit_processor.publish_message(
+                routing_key=settings.rmq_email_processor.routing_key_reset_password,
+                message=message,
+            )

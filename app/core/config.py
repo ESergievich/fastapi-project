@@ -30,6 +30,12 @@ class ApiPrefix(BaseModel):
         path = "".join(parts)
         return path.removeprefix("/")
 
+    @property
+    def prefix_with_version(self) -> str:
+        parts = ("http://localhost:8000", self.prefix, self.v1.prefix)
+        path = "".join(parts)
+        return path.removeprefix("/")
+
 
 class DatabaseConfig(BaseModel):
     host: Optional[str] = None
