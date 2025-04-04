@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -6,12 +7,16 @@ from fastapi import FastAPI
 
 from core import db_helper, settings
 from api import router as api_router
+from rabbit import RabbitEmailProcessor
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    yield
-    await db_helper.dispose()
+    async with RabbitEmailProcessor() as rabbit_processor:
+        task = asyncio.create_task(rabbit_processor.consume_message())
+        yield
+        await db_helper.dispose()
+        task.cancel()
 
 
 app = FastAPI(lifespan=lifespan)
