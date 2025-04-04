@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, PostgresDsn, field_validator
+from pydantic import BaseModel, PostgresDsn, field_validator, computed_field
 
 
 class RunConfig(BaseModel):
@@ -96,6 +96,29 @@ class EmailConfig(BaseModel):
     password: str | None = None
 
 
+class RabbitMQConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 5672
+    user: str = "guest"
+    password: str = "guest"
+
+    @computed_field
+    @property
+    def url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}/"
+
+
+class RabbitEmailProcessorConfig(BaseModel):
+    exchange_name: str = "email_exchange"
+    routing_key_register: str = "email.register"
+    routing_key_verification: str = "email.verify"
+    routing_key_reset_password: str = "email.reset"
+    register_queue: str = "email_register_queue"
+    verification_queue: str = "email_verification_queue"
+    reset_password_queue: str = "email_reset_password_queue"
+    prefetch_count: int = 1
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
@@ -103,6 +126,8 @@ class Settings(BaseSettings):
     access_token: AccessToken = AccessToken()
     redis: RedisConfig = RedisConfig()
     email: EmailConfig = EmailConfig()
+    rabbitmq: RabbitMQConfig = RabbitMQConfig()
+    rmq_email_processor: RabbitEmailProcessorConfig = RabbitEmailProcessorConfig()
 
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
