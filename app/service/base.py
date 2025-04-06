@@ -16,7 +16,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self, object_in: CreateSchemaType, session: AsyncSession
     ) -> ModelType:
         try:
-            object_db = await self.crud.create(object_in, session)
+            object_in_data = object_in.model_dump()
+            object_db = await self.crud.create(object_in_data, session)
         except IntegrityError as e:
             error_detail = e.args[0].split("DETAIL:  ")[1]
             raise HTTPException(status_code=409, detail=error_detail)
@@ -47,7 +48,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self, object_id: int, object_in: UpdateSchemaType, session: AsyncSession
     ) -> ModelType:
         try:
-            object_updated = await self.crud.update(object_id, object_in, session)
+            update_data = object_in.model_dump(exclude_unset=True, exclude_none=True)
+            object_updated = await self.crud.update(object_id, update_data, session)
             if not object_updated:
                 raise HTTPException(status_code=404, detail="Object not found")
         except IntegrityError as e:

@@ -4,18 +4,15 @@ from sqlalchemy import select, or_, desc, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from core import ModelType, CreateSchemaType, UpdateSchemaType
+from core import ModelType
 
 
-class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class BaseCRUD(Generic[ModelType]):
 
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    async def create(
-        self, object_in: CreateSchemaType, session: AsyncSession
-    ) -> ModelType:
-        object_in_data = object_in.model_dump()
+    async def create(self, object_in_data: dict, session: AsyncSession) -> ModelType:
         object_db = self.model(**object_in_data)
         session.add(object_db)
         await session.commit()
@@ -55,10 +52,8 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().all()
 
     async def update(
-        self, object_id: int, object_in: UpdateSchemaType, session: AsyncSession
+        self, object_id: int, update_data: dict, session: AsyncSession
     ) -> ModelType | None:
-        update_data = object_in.model_dump(exclude_unset=True, exclude_none=True)
-
         stmt = (
             update(self.model)
             .where(self.model.id == object_id)
