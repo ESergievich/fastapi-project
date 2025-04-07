@@ -6,15 +6,13 @@ from utils import RoleEnum
 
 
 class UserRead(BaseUser[int]):
-    username: Optional[str] = None
+    username: str
     role: RoleEnum = RoleEnum.CUSTOMER
 
 
 class UserCreate(BaseUserCreate):
-    username: Optional[str] = None
-    role: RoleEnum = RoleEnum.CUSTOMER
+    username: str
 
 
 class UserUpdate(BaseUserUpdate):
     username: Optional[str] = None
-    role: Optional[RoleEnum] = None
