@@ -66,10 +66,7 @@ class BaseCRUD(Generic[ModelType]):
 
         return result.scalars().first()
 
-    async def delete(self, object_id: int, session: AsyncSession) -> None:
-        await session.execute(
-            delete(self.model)
-            .where(self.model.id == object_id)
-            .returning(self.model.id)
-        )
+    @staticmethod
+    async def delete(object_db: ModelType, session: AsyncSession) -> None:
+        await session.delete(object_db)
         await session.commit()
