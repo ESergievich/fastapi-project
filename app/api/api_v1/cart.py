@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from starlette import status
 
 from core import settings, db_helper
+from dependencies import role_or_owner_required
 from redis_cache import get_cart_service
 from schemas import CartResponse, CartItem, OrderResponse
 
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 router = APIRouter(
     prefix=settings.api.v1.cart,
     tags=["Cart"],
+    dependencies=[Depends(role_or_owner_required)]
 )
 
 
