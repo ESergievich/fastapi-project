@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from core import db_helper, settings
 from api import router as api_router
+from errors import register_exception_handlers
 from rabbit import RabbitEmailProcessor
 
 
@@ -20,6 +21,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
+register_exception_handlers(app, debug_mode=settings.run.debug)
 
 app.include_router(router=api_router)
 
