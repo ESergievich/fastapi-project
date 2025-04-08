@@ -41,17 +41,18 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 status_code=404,
                 detail=f"{self.model.__name__} with ID {object_id} not found",
             )
-        self._check_ownership(object_db, current_user)
+        if current_user:
+            self._check_ownership(object_db, current_user)
         return object_db
 
     async def get_filtered(
         self, filter_query, session: AsyncSession, current_user: "User"
     ) -> list[ModelType]:
         filters = filter_query.get_parsed_tags()
-
-        if filters and current_user.role == RoleEnum.CUSTOMER:
-            for user_id in filters.get("user_id", []):
-                self._check_user_permission(user_id, current_user)
+        if current_user:
+            if filters and current_user.role == RoleEnum.CUSTOMER:
+                for user_id in filters.get("user_id", []):
+                    self._check_user_permission(user_id, current_user)
 
         return await self.crud.get_filtered(
             session=session,

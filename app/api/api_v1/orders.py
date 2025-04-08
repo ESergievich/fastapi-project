@@ -24,7 +24,9 @@ router.include_router(
                 RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.CUSTOMER
             ),
             "get": role_required(RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.CUSTOMER),
-            "get_all": role_required(RoleEnum.ADMIN, RoleEnum.MANAGER),
+            "get_all": role_required(
+                RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.CUSTOMER
+            ),
             "update": role_required(
                 RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.CUSTOMER
             ),
