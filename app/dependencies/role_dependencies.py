@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from fastapi import Depends, HTTPException
-from starlette import status
+from fastapi import Depends
 
 from authentication import current_active_user
+from errors import ForbiddenAccess
 
 if TYPE_CHECKING:
     from models import User
@@ -13,9 +13,8 @@ if TYPE_CHECKING:
 def role_required(*allowed_roles: "RoleEnum"):
     async def verify_role(user: "User" = Depends(current_active_user)):
         if allowed_roles and user.role not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
+            raise ForbiddenAccess(
+                debug=f"allowed_roles={allowed_roles}, current={user.role}"
             )
         return user
 
@@ -24,8 +23,5 @@ def role_required(*allowed_roles: "RoleEnum"):
 
 def superuser_required(user: "User" = Depends(current_active_user)):
     if not user.is_superuser:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions",
-        )
+        raise ForbiddenAccess(debug=f"is_superuser=True, current={user.is_superuser}")
     return user

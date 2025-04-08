@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from fastapi import Path, Depends, HTTPException
-from starlette import status
+from fastapi import Path, Depends
 
 from authentication import current_active_user
+from errors import ForbiddenAccess
 from utils import RoleEnum
 
 if TYPE_CHECKING:
@@ -20,7 +20,4 @@ def role_or_owner_required(
     if current_user.role == RoleEnum.CUSTOMER and current_user.id == user_id:
         return current_user
 
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Access denied",
-    )
+    raise ForbiddenAccess(debug=f"user_id={user_id}, current={current_user.id}")
