@@ -2,6 +2,8 @@ import httpx
 import random
 import string
 
+from errors import EmailServiceError
+
 
 class EmailClient:
     """Client for interacting with the mail.tm API to create temporary email accounts."""
@@ -33,11 +35,14 @@ class EmailClient:
         response = await self.client.get(self.GET_DOMAINS)
 
         if response.status_code != 200:
-            raise ValueError(f"Failed to fetch domains: {response.text}")
+            raise EmailServiceError(
+                message="Failed to fetch domains",
+                debug=f"expected_status_code=200, current_status_code={response.status_code}",
+            )
 
         domains = response.json().get("hydra:member", [])
         if not domains:
-            raise ValueError("No available domains found.")
+            raise EmailServiceError(message="No available domains found.")
 
         allow_domain = domains[0]["domain"]
         self.email_address = f"{username}@{allow_domain}"
@@ -53,14 +58,17 @@ class EmailClient:
             json={"address": self.email_address, "password": self.password},
         )
         if response.status_code != 201:
-            raise ValueError(f"Failed to create account: {response.text}")
+            raise EmailServiceError(
+                message="Failed to create account",
+                debug=f"expected_status_code=201, current_status_code={response.status_code}",
+            )
 
         return response.json()
 
     async def get_token(self) -> str:
         """Authenticates the email account and retrieves an access token."""
         if not self.email_address:
-            raise ValueError("Email address is required to get a token.")
+            raise EmailServiceError(message="Email address is required to get a token.")
 
         response = await self.client.post(
             self.POST_CREATE_TOKEN,
@@ -68,25 +76,33 @@ class EmailClient:
         )
 
         if response.status_code != 200:
-            raise ValueError(f"Failed to get token: {response.text}")
+            raise EmailServiceError(
+                message="Failed to get token",
+                debug=f"expected_status_code=200, current_status_code={response.status_code}",
+            )
 
         self.token = response.json().get("token")
         if not self.token:
-            raise ValueError("Token not found in response.")
+            raise EmailServiceError(message="Token not found in response.")
 
         return self.token
 
     async def get_emails(self) -> list[str]:
         """Retrieves the list of email messages for the account."""
         if not self.token:
-            raise ValueError("Authentication token is required to fetch emails.")
+            raise EmailServiceError(
+                message="Authentication token is required to fetch emails."
+            )
 
         response = await self.client.get(
             self.GET_MESSAGES, headers={"Authorization": f"Bearer {self.token}"}
         )
 
         if response.status_code != 200:
-            raise ValueError(f"Failed to get messages: {response.text}")
+            raise EmailServiceError(
+                message="Failed to get messages",
+                debug=f"expected_status_code=200, current_status_code={response.status_code}",
+            )
         messages = [
             message["intro"] for message in response.json().get("hydra:member", [])
         ]

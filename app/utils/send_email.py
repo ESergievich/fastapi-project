@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 from core import settings
+from errors import EmailServiceError
 
 
 def send_email(recipient, subject, message):
@@ -19,8 +20,10 @@ def send_email(recipient, subject, message):
         server.quit()
 
     except smtplib.SMTPAuthenticationError:
-        raise Exception("Authentication Error: Check your email and password.")
+        raise EmailServiceError(
+            message="Authentication Error: Check your email and password."
+        )
     except smtplib.SMTPException as e:
-        raise Exception(f" SMTP error: {e}")
+        raise EmailServiceError(message=f"SMTP error: {e}")
     except Exception as e:
-        raise Exception(f" Unexpected error: {e}")
+        raise EmailServiceError(message=f"Unexpected error: {e}")
