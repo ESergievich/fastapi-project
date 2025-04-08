@@ -9,6 +9,7 @@ from pydantic import BaseModel, PostgresDsn, field_validator, computed_field
 class RunConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
+    debug: bool = True
 
 
 class ApiV1Prefix(BaseModel):
