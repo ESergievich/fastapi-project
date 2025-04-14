@@ -42,9 +42,12 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> list[ModelType]:
         filters = filter_query.get_parsed_tags()
         if current_user:
-            if filters and current_user.role == RoleEnum.CUSTOMER:
+            if current_user.role == RoleEnum.CUSTOMER:
                 for user_id in filters.get("user_id", []):
                     self._check_user_permission(user_id, current_user)
+
+                if not filters.get("user_id", []):
+                    filters["user_id"] = [current_user.id]
 
         return await self.crud.get_filtered(
             session=session,
