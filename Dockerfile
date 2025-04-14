@@ -10,10 +10,10 @@ RUN poetry install --no-interaction --no-ansi --without dev
 
 WORKDIR /app
 
-COPY ./app .
-
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
+
+COPY ./app .
 
 EXPOSE 8000
 

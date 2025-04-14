@@ -1,6 +1,7 @@
 services:
   postgres_db:
     image: postgres:15
+    restart: unless-stopped
     container_name: postgres_db
     env_file: ".env"
     environment:
@@ -9,28 +10,37 @@ services:
       POSTGRES_DB: ${APP_CONFIG__DB__NAME}
     ports:
       - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${APP_CONFIG__DB__USER} -d ${APP_CONFIG__DB__NAME}" ]
       interval: 10s
+      timeout: 5s
       retries: 5
+      start_period: 10s
 
   web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: fastapi_app
+    restart: unless-stopped
     env_file: ".env"
     depends_on:
       postgres_db:
         condition: service_healthy
-    environment:
-      APP_CONFIG__DB__URL: ${APP_CONFIG__DB__URL}
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      - ./app:/app
 
   adminer:
     image: adminer
-    restart: always
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -40,9 +50,16 @@ services:
   redis:
     image: redis:7
     container_name: redis
-    restart: always
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     command: [ "redis-server", "--appendonly", "yes" ]
 
   redis-commander:
@@ -58,10 +75,23 @@ services:
     image: rabbitmq:3-management-alpine
     hostname: rabbitmq
     container_name: rabbitmq
+    restart: unless-stopped
     env_file: ".env"
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       RABBITMQ_DEFAULT_USER: ${APP_CONFIG__RABBITMQ__USER}
       RABBITMQ_DEFAULT_PASS: ${APP_CONFIG__RABBITMQ__PASSWORD}
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
