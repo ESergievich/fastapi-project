@@ -4,13 +4,14 @@ from fastapi import Depends
 
 from authentication import current_active_user
 from errors import ForbiddenAccess
+from utils import RoleEnum
 
 if TYPE_CHECKING:
     from models import User
-    from utils import RoleEnum
+    from utils import RoleEnum as RoleEnumType
 
 
-def role_required(*allowed_roles: "RoleEnum"):
+def role_required(*allowed_roles: "RoleEnumType"):
     async def verify_role(user: "User" = Depends(current_active_user)):
         if allowed_roles and user.role not in allowed_roles:
             raise ForbiddenAccess(
