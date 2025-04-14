@@ -5,15 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 
-from core import (
-    db_helper,
-    UpdateSchemaType,
-    ResponseSchemaType,
-    CreateSchemaType,
-    FiterInSchemaType,
-)
+from core import db_helper
 from schemas import create_filter_params
 from service import BaseService
+from type_vars import (
+    CreateSchemaType,
+    UpdateSchemaType,
+    ResponseSchemaType,
+    FilterInSchemaType,
+)
 
 if TYPE_CHECKING:
     from models import User
@@ -24,7 +24,7 @@ def create_base_router(
     create_schema: Type[CreateSchemaType],
     update_schema: Type[UpdateSchemaType],
     response_schema: Type[ResponseSchemaType],
-    filter_in_schema: Type[FiterInSchemaType],
+    filter_in_schema: Type[FilterInSchemaType],
     permission_map: dict,
 ):
     router = APIRouter()

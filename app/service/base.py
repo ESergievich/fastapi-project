@@ -2,8 +2,8 @@ from typing import Type, Generic, TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core import ModelType, UpdateSchemaType, CreateSchemaType
 from errors import ObjectNotFound, ForbiddenAccess
+from type_vars import ModelType, CreateSchemaType, UpdateSchemaType
 from utils import RoleEnum
 
 if TYPE_CHECKING:

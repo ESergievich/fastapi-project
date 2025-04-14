@@ -4,7 +4,7 @@ from sqlalchemy import select, or_, desc, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from core import ModelType
+from type_vars import ModelType
 
 
 class BaseCRUD(Generic[ModelType]):
