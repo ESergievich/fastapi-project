@@ -137,7 +137,7 @@ class Settings(BaseSettings):
     rmq_email_processor: RabbitEmailProcessorConfig = RabbitEmailProcessorConfig()
 
     model_config = SettingsConfigDict(
-        env_file=(".env.template", ".env"),
+        env_file=("../.env.template", "../.env"),
         env_prefix="APP_CONFIG__",
         env_nested_delimiter="__",
     )
