@@ -5,6 +5,7 @@ from typing import AsyncGenerator
 import uvicorn
 from fastapi import FastAPI
 
+from admin import setup_admin
 from core import db_helper, settings
 from api import router as api_router
 from errors import register_exception_handlers
@@ -22,6 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app, debug_mode=settings.run.debug)
+setup_admin(app=app, engine=db_helper.engine)
 
 app.include_router(router=api_router)
 

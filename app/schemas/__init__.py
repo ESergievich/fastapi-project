@@ -2,6 +2,7 @@ __all__ = (
     "UserRead",
     "UserCreate",
     "UserUpdate",
+    "UserAdminCreate",
     "ProductCreate",
     "ProductUpdate",
     "ProductResponse",
@@ -18,7 +19,7 @@ __all__ = (
     "CartItem",
 )
 
-from .user import UserRead, UserCreate, UserUpdate
+from .user import UserRead, UserCreate, UserUpdate, UserAdminCreate
 from .product import ProductCreate, ProductUpdate, ProductResponse, ProductFilterIn
 from .filters import create_filter_params
 from .order_item import OrderItemResponse, OrderItemCreate, OrderItemUpdate

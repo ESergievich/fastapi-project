@@ -14,5 +14,9 @@ class UserCreate(BaseUserCreate):
     username: str
 
 
+class UserAdminCreate(UserCreate):
+    role: RoleEnum = RoleEnum.ADMIN
+
+
 class UserUpdate(BaseUserUpdate):
     username: Optional[str] = None
