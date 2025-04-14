@@ -126,6 +126,11 @@ class RabbitEmailProcessorConfig(BaseModel):
     prefetch_count: int = 1
 
 
+class InitialDataConfig(BaseModel):
+    seed_data: bool = False
+    seed_with_clean: bool = False
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
@@ -135,6 +140,7 @@ class Settings(BaseSettings):
     email: EmailConfig = EmailConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     rmq_email_processor: RabbitEmailProcessorConfig = RabbitEmailProcessorConfig()
+    initial_data: InitialDataConfig = InitialDataConfig()
 
     model_config = SettingsConfigDict(
         env_file=("../.env.template", "../.env"),
